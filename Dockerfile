@@ -51,9 +51,12 @@ COPY priv priv
 COPY lib lib
 
 COPY assets assets
-RUN npm install
+
+RUN npm install --prefix assets
 
 # compile assets
+RUN mix phx.digest
+
 RUN mix assets.deploy
 
 # Compile the release
