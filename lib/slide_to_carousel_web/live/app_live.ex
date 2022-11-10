@@ -84,7 +84,7 @@ defmodule SlideToCarouselWeb.AppLive do
           <label class="label">
             <span class="label-text">Background color hex code without # (Add file, then hex code)</span>
           </label>
-          <input type="text" name="background_color_hex" placeholder="ffffff" class="input input-bordered" />
+          <input type="text" name="background_color_hex"  value={@hex_color} class="input input-bordered" />
         </div>
 
 
@@ -126,12 +126,13 @@ defmodule SlideToCarouselWeb.AppLive do
    socket
    |> assign(:uploaded_files, [])
    |> assign(:converting, false)
+   |> assign(:hex_color, "000000")
    |> allow_upload(:slide, accept: ~w(.pdf), max_entries: 1)}
 end
 
 def handle_event("validate", params, socket) do
     IO.inspect params
-    {:noreply, socket}
+    {:noreply, assign(socket, hex_color: params["background_color_hex"])}
   end
 
   def handle_event("cancel-upload", %{"ref" => ref}, socket) do
@@ -151,13 +152,17 @@ end
 
         #dest = Path.join(["priv", "static", "uploads", Path.basename(path)])
         dest = Path.join([:code.priv_dir(:slide_to_carousel), "static", "uploads", Path.basename(path)])
+        hex_color = case socket.assigns.hex_color do
+            nil -> "#" <> params["background_color_hex"]
+            x -> "#" <> x
+        end
 
         input_filename = "input.pdf"
         file_absolute_path = dest <> "/" <> input_filename
         File.mkdir_p(dest <> "/split")
         File.cp!(path, file_absolute_path)
         IO.puts "starting conversion"
-        System.cmd("convert", [file_absolute_path, "-resize" ,"2160x2160", "-density", "300", "-background" ,"#" <> params["background_color_hex"], "-gravity" ,"center", "-extent", "2160x2160" ,dest <>"/split/page-0%d.pdf"])
+        System.cmd("convert", [file_absolute_path, "-resize" ,"2160x2160", "-density", "300", "-background" ,hex_color, "-gravity" ,"center", "-extent", "2160x2160" ,dest <>"/split/page-0%d.pdf"])
         IO.puts "done spliting"
         System.cmd("convert", ["-density" ,"300", dest <> "/split/*.pdf" ,dest <> "/output.pdf"])
         IO.puts "done converting"
