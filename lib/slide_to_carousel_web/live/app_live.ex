@@ -147,7 +147,11 @@ end
     pid = self()
 
     spawn(fn ->
-    uploaded_files = consume_uploaded_entries(socket, :slide, fn %{path: path}, _entry -> dest = Path.join(["priv", "static", "uploads", Path.basename(path)])
+    uploaded_files = consume_uploaded_entries(socket, :slide, fn %{path: path}, _entry -> 
+    
+        #dest = Path.join(["priv", "static", "uploads", Path.basename(path)])
+        dest = Path.join([:code.priv_dir(:slide_to_carousel), "static", "uploads", Path.basename(path)])
+
         input_filename = "input.pdf"
         file_absolute_path = dest <> "/" <> input_filename
         File.mkdir_p(dest <> "/split")
