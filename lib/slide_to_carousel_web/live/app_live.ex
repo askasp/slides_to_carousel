@@ -147,8 +147,8 @@ end
     pid = self()
 
     spawn(fn ->
-    uploaded_files = consume_uploaded_entries(socket, :slide, fn %{path: path}, _entry -> 
-    
+    uploaded_files = consume_uploaded_entries(socket, :slide, fn %{path: path}, _entry ->
+
         #dest = Path.join(["priv", "static", "uploads", Path.basename(path)])
         dest = Path.join([:code.priv_dir(:slide_to_carousel), "static", "uploads", Path.basename(path)])
 
@@ -157,7 +157,7 @@ end
         File.mkdir_p(dest <> "/split")
         File.cp!(path, file_absolute_path)
         IO.puts "starting conversion"
-        System.cmd("convert", [file_absolute_path, "-resize" ,"1080x1080", "-density", "400", -background" ,"#" <> params["background_color_hex"], "-gravity" ,"center", "-extent", "1080x1080" ,dest <>"/split/page-0%d.pdf"])
+        System.cmd("convert", [file_absolute_path, "-resize" ,"1080x1080", "-density", "400", "-background" ,"#" <> params["background_color_hex"], "-gravity" ,"center", "-extent", "1080x1080" ,dest <>"/split/page-0%d.pdf"])
         IO.puts "done spliting"
         System.cmd("convert", ["-density" ,"400", dest <> "/split/*.pdf" ,dest <> "/output.pdf"])
         IO.puts "done converting"
